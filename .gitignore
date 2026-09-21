@@ -5,4 +5,4 @@ dist/
 .DS_Store
 design/
 hyperframes-motion/architect-signal-master.webm
-qa-capture/
+qa-capture*/
