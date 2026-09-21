@@ -150,22 +150,38 @@ function Crystal() {
       new THREE.MeshPhysicalMaterial({
         color: 0xa7dfff,
         metalness: 0.12,
-        roughness: 0.08,
-        transmission: 0.74,
+        roughness: 0.16,
+        transmission: 0.67,
         thickness: 1.2,
         ior: 1.64,
         transparent: true,
-        opacity: 0.88,
+        opacity: 0.72,
         iridescence: 0.7,
         iridescenceIOR: 1.35,
         clearcoat: 1,
+        flatShading: true,
+        depthWrite: false,
       }),
     )
     group.add(crystal)
 
+    const facets = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({
+        color: 0xb8e8ff,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.105,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    )
+    facets.scale.setScalar(1.008)
+    group.add(facets)
+
     const wire = new THREE.LineSegments(
       new THREE.EdgesGeometry(geometry, 18),
-      new THREE.LineBasicMaterial({ color: 0xc3edff, transparent: true, opacity: 0.22 }),
+      new THREE.LineBasicMaterial({ color: 0xe0f6ff, transparent: true, opacity: 0.46 }),
     )
     wire.scale.setScalar(1.012)
     group.add(wire)
@@ -249,6 +265,7 @@ function Crystal() {
       window.removeEventListener('pointermove', onPointer)
       document.removeEventListener('visibilitychange', onVisibility)
       geometry.dispose()
+      ;(facets.material as THREE.Material).dispose()
       particlesGeometry.dispose()
       renderer.dispose()
       renderer.domElement.remove()
