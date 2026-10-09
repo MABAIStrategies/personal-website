@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.vercel/
+.DS_Store
+design/
+hyperframes-motion/architect-signal-master.webm
+qa-capture*/

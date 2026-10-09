@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #07090c; }
+      body { color: #f3f0e8; font-family: Arial, Helvetica, sans-serif; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; isolation: isolate; background: #07090c; }
+      #root::before { content: ""; position: absolute; inset: 0; z-index: 10; pointer-events: none; opacity: .05; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+      .clip { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+      .grid { position: absolute; inset: 0; opacity: .25; background-image: linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px); background-size: 120px 120px; }
+      .scene-label { position: absolute; left: 92px; top: 76px; color: #7d878e; font-size: 17px; letter-spacing: .26em; text-transform: uppercase; }
+      .scene-label b { color: #6cd7ff; }
+      .display { position: absolute; left: 92px; bottom: 70px; margin: 0; font: italic 400 205px/.78 Georgia, serif; letter-spacing: -.065em; text-transform: uppercase; }
+      .display.outline { color: rgba(243,240,232,.08); -webkit-text-fill-color: rgba(243,240,232,.08); -webkit-text-stroke: 2px rgba(243,240,232,.74); }
+      #signal-field { position: absolute; inset: 0; }
+      .signal-dot { position: absolute; width: 12px; height: 12px; border: 1px solid #7a8a93; border-radius: 50%; }
+      .signal-dot::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #6cd7ff; box-shadow: 0 0 18px rgba(108,215,255,.7); }
+      .d1 { left: 220px; top: 268px; }.d2 { left: 520px; top: 174px; }.d3 { left: 835px; top: 332px; }.d4 { right: 420px; top: 210px; }.d5 { right: 220px; top: 468px; }.d6 { left: 620px; bottom: 260px; }
+      .signal-rule { position: absolute; height: 1px; background: linear-gradient(90deg, transparent, rgba(108,215,255,.62), transparent); transform-origin: left; }
+      .r1 { width: 520px; left: 238px; top: 274px; transform: rotate(-18deg); }.r2 { width: 690px; left: 844px; top: 338px; transform: rotate(-12deg); }.r3 { width: 560px; left: 628px; bottom: 266px; transform: rotate(21deg); }
+      #scene-system { background: #0a0e12; clip-path: inset(0 100% 0 0); }
+      .system-svg { position: absolute; width: 860px; height: 860px; left: 910px; top: 110px; overflow: visible; }
+      .orbit { fill: none; stroke: rgba(255,255,255,.15); stroke-width: 2; }
+      .path { fill: none; stroke: #6cd7ff; stroke-width: 2; stroke-dasharray: 900; stroke-dashoffset: 900; }
+      .node { fill: #0a0e12; stroke: #b397ff; stroke-width: 3; }
+      .core { fill: #11232d; stroke: #6cd7ff; stroke-width: 3; }
+      #system-word { top: 220px; bottom: auto; font-style: normal; font-size: 176px; }
+      .system-copy { position: absolute; left: 102px; top: 455px; width: 570px; color: #969fa5; font-size: 25px; line-height: 1.55; }
+      .system-copy strong { color: #f3f0e8; font-weight: 500; }
+      #scene-scale { background: radial-gradient(circle at 68% 48%, #16232d 0, #090d12 37%, #07090c 66%); clip-path: circle(0% at 68% 48%); }
+      .scale-rings { position: absolute; left: 980px; top: 85px; width: 880px; height: 880px; }
+      .scale-ring { position: absolute; inset: 0; border: 2px solid rgba(108,215,255,.2); border-radius: 50%; }
+      .scale-ring:nth-child(2) { inset: 14%; border-color: rgba(179,151,255,.25); }
+      .scale-ring:nth-child(3) { inset: 29%; border-color: rgba(255,189,102,.25); }
+      .scale-ring i { position: absolute; top: -7px; left: 50%; width: 13px; height: 13px; border-radius: 50%; background: #6cd7ff; box-shadow: 0 0 25px #6cd7ff; }
+      .compound { left: 88px; bottom: 318px; font-size: 174px; }
+      .compound-sub { position: absolute; left: 102px; bottom: 145px; width: 590px; color: #a2a9ae; font: 400 29px/1.45 Georgia, serif; }
+      .brand-lockup { position: absolute; right: 90px; bottom: 72px; display: flex; align-items: baseline; gap: 13px; color: #f3f0e8; font-size: 28px; font-weight: 800; letter-spacing: -.04em; }
+      .brand-lockup i { width: 9px; height: 9px; border-radius: 50%; background: #6cd7ff; box-shadow: 0 0 18px #6cd7ff; }
+      #final-sweep { position: absolute; z-index: 8; top: -200px; left: -500px; width: 240px; height: 1600px; opacity: .34; background: linear-gradient(90deg, transparent, rgba(108,215,255,.65), transparent); transform: rotate(21deg); filter: blur(12px); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="6" data-width="1920" data-height="1080">
+      <section id="scene-signal" class="clip" data-start="0" data-duration="6" data-track-index="0" data-layout-allow-overlap data-layout-allow-occlusion>
+        <div class="grid"></div>
+        <p class="scene-label" data-layout-allow-overlap data-layout-allow-occlusion><b data-layout-allow-overlap>01</b> / raw input</p>
+        <div id="signal-field">
+          <i class="signal-dot d1"></i><i class="signal-dot d2"></i><i class="signal-dot d3"></i>
+          <i class="signal-dot d4"></i><i class="signal-dot d5"></i><i class="signal-dot d6"></i>
+          <i class="signal-rule r1"></i><i class="signal-rule r2"></i><i class="signal-rule r3"></i>
+        </div>
+        <h1 id="chaos-word" class="display outline">Chaos</h1>
+      </section>
+
+      <section id="scene-system" class="clip" data-start="1.75" data-duration="4.25" data-track-index="1" data-layout-allow-overlap data-layout-allow-occlusion>
+        <div class="grid"></div>
+        <p class="scene-label" data-layout-allow-overlap data-layout-allow-occlusion><b data-layout-allow-overlap>02</b> / architecture</p>
+        <h2 id="system-word" class="display">System</h2>
+        <p class="system-copy"><strong>Connect context, judgment, and action</strong><br />into a system people can trust.</p>
+        <svg class="system-svg" viewBox="0 0 860 860" aria-hidden="true">
+          <circle class="orbit" cx="430" cy="430" r="345"/><circle class="orbit" cx="430" cy="430" r="255"/><circle class="orbit" cx="430" cy="430" r="165"/>
+          <path class="path" d="M430 85 L430 430 L700 635 M112 520 L430 430 L650 170 M205 205 L430 430"/>
+          <circle class="node" cx="430" cy="85" r="14"/><circle class="node" cx="700" cy="635" r="14"/><circle class="node" cx="112" cy="520" r="14"/><circle class="node" cx="650" cy="170" r="14"/><circle class="node" cx="205" cy="205" r="14"/>
+          <polygon class="core" points="430,340 510,385 510,475 430,520 350,475 350,385"/>
+        </svg>
+      </section>
+
+      <section id="scene-scale" class="clip" data-start="3.8" data-duration="2.2" data-track-index="2" data-layout-allow-overlap data-layout-allow-occlusion>
+        <p class="scene-label" data-layout-allow-overlap data-layout-allow-occlusion><b data-layout-allow-overlap>03</b> / durable advantage</p>
+        <div class="scale-rings" data-layout-allow-overflow><div class="scale-ring"><i></i></div><div class="scale-ring"><i></i></div><div class="scale-ring"><i></i></div></div>
+        <h2 id="compound-word" class="display compound">Compound.</h2>
+        <p class="compound-sub">Deploy. Measure. Refine.<br />Make the advantage stronger with use.</p>
+        <div class="brand-lockup">MARK BOCKRATH<i></i></div>
+      </section>
+      <div id="final-sweep" class="clip" data-start="4.15" data-duration="1.85" data-track-index="3" data-layout-allow-overflow></div>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.set(["#scene-system", "#scene-scale"], { visibility: "visible" }, 0);
+      tl.fromTo("#signal-field .signal-dot", { opacity: 0, scale: .2 }, { opacity: 1, scale: 1, duration: .6, stagger: .08, ease: "back.out(1.7)" }, .22);
+      tl.fromTo(".signal-rule", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: .85, stagger: .12, ease: "power2.out" }, .55);
+      tl.fromTo("#chaos-word", { opacity: 0, x: -90 }, { opacity: 1, x: 0, duration: .9, ease: "power3.out" }, .48);
+      tl.to("#scene-system", { clipPath: "inset(0 0% 0 0)", duration: .82, ease: "power3.inOut" }, 1.75);
+      tl.fromTo("#system-word", { opacity: 0, y: 85 }, { opacity: 1, y: 0, duration: .75, ease: "expo.out" }, 2.05);
+      tl.fromTo(".system-copy", { opacity: 0, x: -35 }, { opacity: 1, x: 0, duration: .65, ease: "power3.out" }, 2.34);
+      tl.to(".system-svg .path", { strokeDashoffset: 0, duration: 1.15, stagger: .08, ease: "power1.inOut" }, 2.1);
+      tl.fromTo(".system-svg .node, .system-svg .core", { opacity: 0, scale: .3, transformOrigin: "center" }, { opacity: 1, scale: 1, duration: .55, stagger: .07, ease: "back.out(1.8)" }, 2.48);
+      tl.to("#scene-scale", { clipPath: "circle(78% at 68% 48%)", duration: .92, ease: "power3.inOut" }, 3.8);
+      tl.fromTo("#compound-word", { opacity: 0, x: -70 }, { opacity: 1, x: 0, duration: .72, ease: "expo.out" }, 4.05);
+      tl.fromTo(".compound-sub, .brand-lockup", { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: .6, stagger: .12, ease: "power3.out" }, 4.32);
+      tl.fromTo(".scale-ring", { opacity: 0, scale: .72, transformOrigin: "center" }, { opacity: 1, scale: 1, duration: .8, stagger: .09, ease: "power3.out" }, 4.0);
+      tl.to(".scale-ring:nth-child(1)", { rotation: 24, duration: 1.55, ease: "none" }, 4.1);
+      tl.to(".scale-ring:nth-child(2)", { rotation: -35, duration: 1.55, ease: "none" }, 4.1);
+      tl.fromTo("#final-sweep", { x: 0 }, { x: 2650, duration: 1.25, ease: "power2.inOut" }, 4.35);
+      tl.to("#root", { opacity: .86, duration: .38, ease: "power1.in" }, 5.58);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
